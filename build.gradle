@@ -1,0 +1,110 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+ext {
+    // The drivers we want to use
+    drivers = ["firefox", "chrome", "safari", "ie", "edge"]
+
+    ext {
+        groovyVersion = '2.4.7'
+        gebVersion = '2.3.1'
+        seleniumVersion = '3.14.0'
+        chromeDriverVersion = '75.0.3770.90'
+        geckoDriverVersion = '0.24.0'
+        ieDriverVersion = '3.14'
+        edgeDriverVersion = '3.14393'
+    }
+}
+
+apply plugin: 'groovy'
+apply from: "gradle/osSpecificDownloads.gradle"
+
+repositories {
+    /*maven {
+        url "http://westrepo.polycom.com:8081/artifactory/repo"
+    }
+    maven {
+        url "https://jitpack.io"
+    }*/
+    maven {
+        url "http://maven.aliyun.com/nexus/content/groups/public"
+    }
+    maven {
+        url "http://localhost:8081/nexus/content/groups/public"
+    }
+    mavenLocal()
+}
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy.force 'com.github.vidstige:jadb:v1.1.0'
+    resolutionStrategy.force 'org.seleniumhq.selenium:selenium-support:3.14.0'
+    resolutionStrategy.force 'org.seleniumhq.selenium:selenium-api:3.14.0'
+    resolutionStrategy.force 'org.seleniumhq.selenium:selenium-remote-driver:3.14.0'
+}
+
+dependencies {
+    compile 'com.github.vidstige:jadb:v1.1.0'
+    compile 'com.polycom.honeycomb:system-spock:1.0.30-SNAPSHOT'
+    compile 'com.polycom.honeycomb:mooncake-adapter:0.0.2-SNAPSHOT'
+    compile 'com.polycom.honeycomb:rpdwin-adapter:1.0.9-SNAPSHOT'
+    compile 'com.polycom.honeycomb:rpdmac-adapter:1.0.2-SNAPSHOT'
+    compile 'com.polycom.honeycomb:dma-adapter:1.0.6-SNAPSHOT'
+    compile 'com.polycom.honeycomb:mcu-adapter:1.0.2-SNAPSHOT'
+    compile 'com.polycom.honeycomb:ftp-lib:1.0.8'
+    compile('com.polycom.honeycomb:gs-adapter:1.0.4-SNAPSHOT') {
+        exclude module: 'slf4j-api'
+    }
+}
+
+drivers.each { driver ->
+    task "${driver}Test"(type: Test) {
+        reports {
+            html.destination = reporting.file("$name/tests")
+            junitXml.destination = file("$buildDir/test-results/$name")
+        }
+
+        outputs.upToDateWhen { false }  // Always run tests
+
+        systemProperty "geb.build.reportsDir", reporting.file("$name/geb")
+        systemProperty "geb.env", driver
+
+        // If you wanted to set the baseUrl in your build…
+        // systemProperty "geb.build.baseUrl", "http://myapp.com"
+    }
+}
+
+chromeTest {
+    dependsOn unzipChromeDriver
+    def chromedriverFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "chromedriver.exe" : "chromedriver"
+    systemProperty "webdriver.chrome.driver", new File(unzipChromeDriver.outputs.files.singleFile, chromedriverFilename).absolutePath
+}
+
+task testSuite(type: Test, dependsOn: testClasses) {
+    include 'com.polycom.mooncake.*'
+    systemProperties System.getProperties()
+    if (System.getProperty("geb.env") != null) {
+        if (System.getProperty("geb.env").equalsIgnoreCase("ie")) {
+            System.out.println("Running UI tests on IE browser...")
+            dependsOn unzipIEDriver
+            def iedriverFileName = "IEDriverServer.exe"
+            systemProperty "webdriver.ie.driver", new File(unzipIEDriver.outputs.files.singleFile, iedriverFileName).absolutePath
+        } else if (System.getProperty("geb.env").equalsIgnoreCase("chrome")) {
+            System.out.println("Running UI tests on Chrome browser...")
+            dependsOn unzipChromeDriver
+            def chromedriverFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "chromedriver.exe" : "chromedriver"
+            systemProperty "webdriver.chrome.driver", new File(unzipChromeDriver.outputs.files.singleFile, chromedriverFilename).absolutePath
+        } else if (System.getProperty("geb.env").equalsIgnoreCase("firefox")) {
+            System.out.println("Running UI tests on Firefox browser...")
+            dependsOn unzipGeckoDriver
+            def geckodriverFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "geckodriver.exe" : "geckodriver"
+            systemProperty "webdriver.gecko.driver", new File(unzipGeckoDriver.outputs.files.singleFile, geckodriverFilename).absolutePath
+        }
+    }
+}
+
+tasks.withType(Test) {
+    testLogging {
+        events 'started', 'passed'
+    }
+}

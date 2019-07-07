@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/mooncake-cases.iml" filepath="$PROJECT_DIR$/mooncake-cases.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mooncake-cases_main.iml" filepath="$PROJECT_DIR$/.idea/modules/mooncake-cases_main.iml" group="mooncake-cases" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mooncake-cases_test.iml" filepath="$PROJECT_DIR$/.idea/modules/mooncake-cases_test.iml" group="mooncake-cases" />
+    </modules>
+  </component>
+</project>

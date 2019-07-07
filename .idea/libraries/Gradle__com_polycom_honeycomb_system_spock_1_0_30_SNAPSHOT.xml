@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.polycom.honeycomb:system-spock:1.0.30-SNAPSHOT">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/Could not resolve com.polycom.honeycomb:system-spock:1.0.30-SNAPSHOT." />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.polycom.honeycomb/system-spock/1.0.30-SNAPSHOT/6a9931c8ef1e2b19c176f02a6ac3309cee93822f/system-spock-1.0.30-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.polycom.honeycomb/system-spock/1.0.30-SNAPSHOT/af403f0dd559a914d5faa3fa17365f8de126e44/system-spock-1.0.30-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
